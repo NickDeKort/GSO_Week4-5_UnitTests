@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="nl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Time.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;UnittestenTime&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">fontys.time</a> &gt; <span class="el_source">Time.java</span></div><h1>Time.java</h1><pre class="source lang-java linenums">/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package fontys.time;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+/**
+ *
+ * @author Frank Peeters, Nico Kuijpers
+ * 
+ * LET OP: De klasse Time bevat enkele fouten.
+ * 
+ */
+public class Time implements ITime {
+
+<span class="fc" id="L19">    private int year = 0;</span>
+<span class="fc" id="L20">    private int month = 0;</span>
+<span class="fc" id="L21">    private int day = 0;</span>
+<span class="fc" id="L22">    private int hour = 0;</span>
+<span class="fc" id="L23">    private int minute = 0;</span>
+
+    /**
+     * creation of a Time-object with year y, month m, day d, hours h and
+     * minutes m; if the combination of y-m-d refers to a non-existing date a
+     * correct value of this Time-object will be not guaranteed
+     *
+     * @param y
+     * @param m 1≤m≤12
+     * @param d 1≤d≤31
+     * @param h 0≤h≤23
+     * @param min 0≤min≤59
+     */
+<span class="fc" id="L36">    public Time(int y, int m, int d, int h, int min) {</span>
+        // Set year
+<span class="fc" id="L38">        this.year = y;</span>
+
+        // Check if month is correct
+<span class="pc bpc" id="L41" title="1 of 4 branches missed.">        if (m &lt; 1 || m &gt; 12) {</span>
+<span class="fc" id="L42">            throw new IllegalArgumentException();</span>
+        } else {
+<span class="fc" id="L44">            this.month = m;</span>
+        }
+
+        // Check if day is correct
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (d &lt; 1 || d &gt; 31) {</span>
+<span class="fc" id="L49">            throw new IllegalArgumentException();</span>
+        } else {
+<span class="fc" id="L51">            this.day = d;</span>
+        }
+
+        // Check if hour is correct
+<span class="pc bpc" id="L55" title="1 of 4 branches missed.">        if (h &lt; 0 || h &gt; 23) {</span>
+<span class="fc" id="L56">            throw new IllegalArgumentException();</span>
+        } else {
+<span class="fc" id="L58">            this.hour = h;</span>
+        }
+
+        // Check if minutes is correct
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">        if (min &lt; 0 || min &gt; 59) {</span>
+<span class="fc" id="L63">            throw new IllegalArgumentException();</span>
+        } else {
+<span class="fc" id="L65">            this.minute = min;</span>
+        }
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public int getYear() {
+<span class="fc" id="L71">        return this.year;</span>
+    }
+
+    @Override
+    public int getMonth() {
+<span class="fc" id="L76">        return this.month;</span>
+    }
+
+    @Override
+    public int getDay() {
+<span class="fc" id="L81">        return this.day;</span>
+    }
+
+    @Override
+    public int getHours() {
+<span class="fc" id="L86">        return this.hour;</span>
+    }
+
+    @Override
+    public int getMinutes() {
+<span class="fc" id="L91">        return this.minute;</span>
+    }
+
+    @Override
+    public DayInWeek getDayInWeek() {
+<span class="fc" id="L96">        Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L97">        calendar.set(this.year, this.month, this.day, this.hour, this.minute);</span>
+<span class="fc" id="L98">        int dow = calendar.get(Calendar.DAY_OF_WEEK);</span>
+<span class="fc" id="L99">        return DayInWeek.values()[dow];</span>
+    }
+
+    @Override
+    public ITime plus(int minutes) {
+<span class="fc" id="L104">        Calendar calendar = new GregorianCalendar();</span>
+<span class="fc" id="L105">        calendar.set(this.year, this.month, this.day, this.hour, this.minute);</span>
+<span class="fc" id="L106">        calendar.add(Calendar.MINUTE, minutes);</span>
+
+<span class="fc" id="L108">        this.day = calendar.get(Calendar.DAY_OF_MONTH);</span>
+<span class="fc" id="L109">        this.hour = calendar.get(Calendar.HOUR);</span>
+<span class="fc" id="L110">        this.minute = calendar.get(Calendar.MINUTE);</span>
+<span class="fc" id="L111">        this.month = calendar.get(Calendar.MONTH);</span>
+<span class="fc" id="L112">        this.year = calendar.get(Calendar.YEAR);</span>
+
+<span class="fc" id="L114">        return this;</span>
+    }
+
+    /**
+     * @return difference in minutes
+     */
+    @Override
+    public int difference(ITime time) {
+<span class="fc" id="L122">        Calendar dateOne = GregorianCalendar.getInstance();</span>
+<span class="fc" id="L123">        dateOne.set(time.getYear(), time.getMonth(), time.getDay(), time.getHours(), time.getMinutes());</span>
+
+<span class="fc" id="L125">        Calendar dateSecond = Calendar.getInstance();</span>
+<span class="fc" id="L126">        dateSecond.set(this.year, this.month, this.day, this.hour, this.minute);</span>
+
+<span class="fc" id="L128">        long t1 = dateOne.getTimeInMillis();</span>
+<span class="fc" id="L129">        long t2 = dateSecond.getTimeInMillis();</span>
+<span class="fc" id="L130">        long diffInMilliSecond = t2 - t1;</span>
+
+<span class="fc" id="L132">        return (int) Math.floor(diffInMilliSecond / (1000 * 60));</span>
+    }
+
+    @Override
+    public int compareTo(ITime o) {
+<span class="fc" id="L137">        final int EQUAL = 0;</span>
+<span class="fc" id="L138">        final int UNEQUAL = 1;</span>
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (this.getYear() != o.getYear()) {</span>
+<span class="fc" id="L141">            return UNEQUAL;</span>
+        }
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (this.getMonth() != o.getMonth()) {</span>
+<span class="nc" id="L145">            return UNEQUAL;</span>
+        }
+
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (this.getDay() != o.getDay()) {</span>
+<span class="nc" id="L149">            return UNEQUAL;</span>
+        }
+
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        if (this.getHours() != o.getHours()) {</span>
+<span class="nc" id="L153">            return UNEQUAL;</span>
+        }
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (this.getMinutes() != o.getMinutes()) {</span>
+<span class="nc" id="L157">            return UNEQUAL;</span>
+        }
+
+<span class="fc" id="L160">        return EQUAL;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

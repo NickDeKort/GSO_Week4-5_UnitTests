@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="nl"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TimeSpan.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;UnittestenTime&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">fontys.time</a> &gt; <span class="el_source">TimeSpan.java</span></div><h1>TimeSpan.java</h1><pre class="source lang-java linenums">/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package fontys.time;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+/**
+ *
+ * @author Frank Peeters, Nico Kuijpers, Nick de Kort
+ * 
+ * LET OP: De klasse TimeSpan bevat enkele fouten.
+ * 
+ */
+public class TimeSpan implements ITimeSpan {
+
+    /* class invariant: 
+     * A stretch of time with a begin time and end time.
+     * The end time is always later then the begin time; the length of the time span is
+     * always positive
+     * 
+     */
+    private ITime bt, et;
+    
+    /**
+     * 
+     * @param bt must be earlier than et
+     * @param et 
+     */
+<span class="fc" id="L32">    public TimeSpan(ITime bt, ITime et) {</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (et.difference(bt) &lt; 0) {</span>
+<span class="fc" id="L34">            throw new IllegalArgumentException(&quot;begin time &quot;</span>
+                    + bt + &quot; must be earlier than end time &quot; + et);
+        }
+
+<span class="fc" id="L38">        this.bt = bt;</span>
+<span class="fc" id="L39">        this.et = et;</span>
+<span class="fc" id="L40">    }</span>
+
+    @Override
+    public ITime getBeginTime() {
+<span class="fc" id="L44">        return bt;</span>
+    }
+
+    @Override
+    public ITime getEndTime() {
+<span class="fc" id="L49">        return et;</span>
+    }
+
+    @Override
+    public int length() {
+<span class="fc" id="L54">        return bt.difference(et);</span>
+    }
+
+    @Override
+    public void setBeginTime(ITime beginTime) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (beginTime.difference(this.bt) &gt; 0) {</span>
+<span class="fc" id="L60">            this.bt = beginTime;</span>
+        }
+<span class="fc" id="L62">    }</span>
+
+    @Override
+    public void setEndTime(ITime endTime) {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (endTime.difference(bt) &gt; 0) {</span>
+<span class="fc" id="L67">            et = endTime;</span>
+        }
+<span class="fc" id="L69">    }</span>
+
+    @Override
+    public void move(int minutes) {
+<span class="fc" id="L73">        bt.plus(minutes);</span>
+<span class="fc" id="L74">        et.plus(minutes);</span>
+<span class="fc" id="L75">    }</span>
+
+    @Override
+    public void changeLengthWith(int minutes) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (minutes &lt;= 0) {</span>
+<span class="nc" id="L80">            throw new IllegalArgumentException(&quot;length of period must be positive&quot;);</span>
+        }
+        
+<span class="fc" id="L83">        et = et.plus(minutes);</span>
+<span class="fc" id="L84">    }</span>
+
+    @Override
+    public boolean isPartOf(ITimeSpan timeSpan) {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        return this.unionWith(timeSpan) == null;</span>
+    }
+
+    @Override
+    public ITimeSpan unionWith(ITimeSpan timeSpan) {
+        // Does $period's begin time align with $this endtime?
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (timeSpan.getBeginTime() == this.et) {</span>
+<span class="fc" id="L95">            return new TimeSpan(this.bt, timeSpan.getEndTime());</span>
+        }
+        
+        // Or the other way around: $this' begintime match with $period's endtime?
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (this.bt == timeSpan.getEndTime()) {</span>
+<span class="fc" id="L100">            return new TimeSpan(timeSpan.getBeginTime(), this.et);</span>
+        }
+        
+        // Too bad, the periods do not align nicely. Check whether there is overlap at all...
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (this.intersectionWith(timeSpan) != null) {</span>
+            // Copied this code from intersectionWith(), except that here we'll check for the longest possible overlap instead of the shortest
+<span class="fc" id="L106">            Calendar dateOne = GregorianCalendar.getInstance();</span>
+<span class="fc" id="L107">            dateOne.set(timeSpan.getBeginTime().getYear(), timeSpan.getBeginTime().getMonth(), timeSpan.getBeginTime().getDay(), timeSpan.getBeginTime().getHours(), timeSpan.getBeginTime().getMinutes());</span>
+
+<span class="fc" id="L109">            Calendar dateTwo = GregorianCalendar.getInstance();</span>
+<span class="fc" id="L110">            dateTwo.set(timeSpan.getEndTime().getYear(), timeSpan.getEndTime().getMonth(), timeSpan.getEndTime().getDay(), timeSpan.getEndTime().getHours(), timeSpan.getEndTime().getMinutes());</span>
+
+<span class="fc" id="L112">            Calendar dateThree = Calendar.getInstance();</span>
+<span class="fc" id="L113">            dateThree.set(this.bt.getYear(), this.bt.getMonth(), this.bt.getDay(), this.bt.getHours(), this.bt.getMinutes());</span>
+
+<span class="fc" id="L115">            Calendar dateFour = Calendar.getInstance();</span>
+<span class="fc" id="L116">            dateFour.set(this.et.getYear(), this.et.getMonth(), this.et.getDay(), this.et.getHours(), this.et.getMinutes());</span>
+            
+            ITime begin;
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if (dateOne.getTimeInMillis() &lt;= dateThree.getTimeInMillis()) // if $period starts before $this starts</span>
+<span class="fc" id="L120">                begin = timeSpan.getBeginTime();</span>
+            else
+<span class="fc" id="L122">                begin = this.getBeginTime();</span>
+
+            ITime end;
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if (dateFour.getTimeInMillis() &lt;= dateTwo.getTimeInMillis()) // if $this ends before $period ends</span>
+<span class="fc" id="L126">                end = timeSpan.getEndTime();</span>
+            else
+<span class="fc" id="L128">                end = this.getEndTime();</span>
+
+<span class="fc" id="L130">            return new TimeSpan(begin, end);</span>
+        }
+        
+<span class="fc" id="L133">        return null;</span>
+    }
+
+    @Override
+    public ITimeSpan intersectionWith(ITimeSpan timeSpan) {
+<span class="fc" id="L138">        Calendar dateOne = GregorianCalendar.getInstance();</span>
+<span class="fc" id="L139">        dateOne.set(timeSpan.getBeginTime().getYear(), timeSpan.getBeginTime().getMonth(), timeSpan.getBeginTime().getDay(), timeSpan.getBeginTime().getHours(), timeSpan.getBeginTime().getMinutes());</span>
+
+<span class="fc" id="L141">        Calendar dateTwo = GregorianCalendar.getInstance();</span>
+<span class="fc" id="L142">        dateTwo.set(timeSpan.getEndTime().getYear(), timeSpan.getEndTime().getMonth(), timeSpan.getEndTime().getDay(), timeSpan.getEndTime().getHours(), timeSpan.getEndTime().getMinutes());</span>
+
+<span class="fc" id="L144">        Calendar dateThree = Calendar.getInstance();</span>
+<span class="fc" id="L145">        dateThree.set(this.bt.getYear(), this.bt.getMonth(), this.bt.getDay(), this.bt.getHours(), this.bt.getMinutes());</span>
+
+<span class="fc" id="L147">        Calendar dateFour = Calendar.getInstance();</span>
+<span class="fc" id="L148">        dateFour.set(this.et.getYear(), this.et.getMonth(), this.et.getDay(), this.et.getHours(), this.et.getMinutes());</span>
+        
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (dateFour.getTimeInMillis() &lt;= dateOne.getTimeInMillis())</span>
+<span class="fc" id="L151">            return null; // $this ends before or at the beginning of $period (no overlap)</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (dateThree.getTimeInMillis() &gt;= dateTwo.getTimeInMillis())</span>
+<span class="fc" id="L153">            return null; // $this starts after or at the end of $period (no overlap)</span>
+        
+        ITime begin;
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (dateOne.getTimeInMillis() &lt;= dateThree.getTimeInMillis()) // if $period starts before $this starts</span>
+<span class="fc" id="L157">            begin = this.getBeginTime();</span>
+        else
+<span class="fc" id="L159">            begin = timeSpan.getBeginTime();</span>
+        
+        ITime end;
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (dateFour.getTimeInMillis() &lt;= dateTwo.getTimeInMillis()) // if $this ends before $period ends</span>
+<span class="fc" id="L163">            end = this.getEndTime();</span>
+        else
+<span class="fc" id="L165">            end = timeSpan.getEndTime();</span>
+        
+<span class="fc" id="L167">        return new TimeSpan(begin, end);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>
